@@ -33,7 +33,7 @@ def setup_ci_template(provider):
 
 @pytest.fixture(scope="function")
 def vm_name(request):
-    vm_name = 'test_image_prov_{}'.format(fauxfactory.gen_alphanumeric())
+    vm_name = 'test-ci-prov{}'.format(fauxfactory.gen_alphanumeric().lower())
     return vm_name
 
 
@@ -54,7 +54,7 @@ def test_provision_cloud_init(request, setup_provider, provider, provisioning,
 
     instance = Instance.factory(vm_name, provider, image)
 
-    request.addfinalizer(instance.delete_from_provider)
+    # request.addfinalizer(instance.delete_from_provider)
     # TODO: extend inst_args for other providers except EC2 if needed
     inst_args = {
         'request': {'email': 'image_provisioner@example.com',
@@ -63,7 +63,9 @@ def test_provision_cloud_init(request, setup_provider, provider, provisioning,
                     'notes': note},
         'catalog': {'vm_name': vm_name},
         'properties': {'instance_type': provisioning['instance_type'],
-                       'guest_keypair': provisioning['guest_keypair']},
+                       'guest_keypair': provisioning['guest_keypair'],
+                       'boot_disk_size': provisioning['boot_disk_size'],
+                       'is_preemptible': True},
         'environment': {'availability_zone': provisioning['availability_zone'],
                         'cloud_network': provisioning['cloud_network'],
                         'security_groups': [provisioning['security_group']]},
